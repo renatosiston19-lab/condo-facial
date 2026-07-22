@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ConnectionMode {
+  DIRECT
+  AGENT
+}
+
+enum Role {
+  MANUTENCAO
+  SINDICO
+}
+
+enum CadastroStatus {
+  PENDENTE
+  FOTO_ENVIADA
+  PROCESSANDO
+  CONCLUIDO
+  ERRO
+}
+
+enum JobStatus {
+  PENDENTE
+  PROCESSANDO
+  CONCLUIDO
+  ERRO
+}
+
+model Condominio {
+  id          String        @id @default(cuid())
+  nome        String
+  createdAt   DateTime      @default(now())
+  dispositivos Dispositivo[]
+  moradores   Morador[]
+  usuarios    User[]
+  agentToken  AgentToken?
+}
+
+model User {
+  id           String      @id @default(cuid())
+  username     String      @unique
+  passwordHash String
+  role         Role
+  condominio   Condominio? @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  condominioId String?
+  createdAt    DateTime    @default(now())
+
+  @@index([condominioId])
+}
+
+model Dispositivo {
+  id             String         @id @default(cuid())
+  condominio     Condominio     @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  condominioId   String
+  nome           String
+  ip             String
+  usuario        String
+  senha          String
+  connectionMode ConnectionMode @default(DIRECT)
+  canalPorta     Int            @default(1)
+  createdAt      DateTime       @default(now())
+  jobs           ProvisioningJob[]
+
+  @@index([condominioId])
+}
+
+model Morador {
+  id            String          @id @default(cuid())
+  condominio    Condominio      @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  condominioId  String
+  nome          String
+  unidade       String
+  bloco         String?
+  telefone      String?
+  email         String?
+  intelbrasUserId String?
+  createdAt     DateTime        @default(now())
+  cadastros     CadastroFacial[]
+
+  @@index([condominioId])
+}
+
+model CadastroFacial {
+  id        String            @id @default(cuid())
+  morador   Morador           @relation(fields: [moradorId], references: [id], onDelete: Cascade)
+  moradorId String
+  token     String            @unique @default(cuid())
+  status    CadastroStatus    @default(PENDENTE)
+  foto      String?           // JPEG base64
+  erro      String?
+  expiraEm  DateTime
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  jobs      ProvisioningJob[]
+
+  @@index([moradorId])
+}
+
+model ProvisioningJob {
+  id               String         @id @default(cuid())
+  cadastroFacial   CadastroFacial @relation(fields: [cadastroFacialId], references: [id], onDelete: Cascade)
+  cadastroFacialId String
+  dispositivo      Dispositivo    @relation(fields: [dispositivoId], references: [id], onDelete: Cascade)
+  dispositivoId    String
+  status           JobStatus      @default(PENDENTE)
+  tentativas       Int            @default(0)
+  ultimoErro       String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([cadastroFacialId])
+  @@index([dispositivoId])
+  @@index([status])
+}
+
+model AgentToken {
+  id           String     @id @default(cuid())
+  condominio   Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  condominioId String     @unique
+  token        String     @unique @default(cuid())
+  createdAt    DateTime   @default(now())
+}

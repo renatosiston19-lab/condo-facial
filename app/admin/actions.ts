@@ -40,6 +40,29 @@ export async function createDispositivo(formData: FormData): Promise<void> {
   revalidatePath("/admin");
 }
 
+/** Edita um dispositivo existente — inclui trocar o modo de conexão (DIRECT/AGENT). */
+export async function atualizarDispositivo(formData: FormData): Promise<void> {
+  await requireSession(["MANUTENCAO"]);
+
+  const dispositivoId = String(formData.get("dispositivoId") ?? "");
+  const nome = String(formData.get("nome") ?? "").trim();
+  const ip = String(formData.get("ip") ?? "").trim();
+  const usuario = String(formData.get("usuario") ?? "").trim();
+  const senha = String(formData.get("senha") ?? "");
+  const canalPorta = Number(formData.get("canalPorta") ?? 1);
+  const connectionMode = String(formData.get("connectionMode") ?? "DIRECT") as "DIRECT" | "AGENT";
+
+  if (!dispositivoId || !nome || !ip || !usuario || !senha) {
+    throw new Error("Preencha todos os campos do dispositivo.");
+  }
+
+  await prisma.dispositivo.update({
+    where: { id: dispositivoId },
+    data: { nome, ip, usuario, senha, canalPorta, connectionMode },
+  });
+  revalidatePath("/admin");
+}
+
 /**
  * Usada tanto pelo /admin (MANUTENCAO, qualquer condomínio) quanto pelo
  * /moradores (SINDICO, apenas o próprio condomínio).
@@ -224,6 +247,20 @@ export async function createSindicoUser(formData: FormData): Promise<void> {
   await prisma.user.create({
     data: { username, passwordHash: await hashPassword(password), role: "SINDICO", condominioId },
   });
+  revalidatePath("/admin");
+}
+
+/** Garante que existe um token de agente para o condomínio (cria se ainda não existir). */
+export async function gerarAgentToken(formData: FormData): Promise<void> {
+  await requireSession(["MANUTENCAO"]);
+
+  const condominioId = String(formData.get("condominioId") ?? "");
+  if (!condominioId) throw new Error("Selecione um condomínio.");
+
+  const existente = await prisma.agentToken.findUnique({ where: { condominioId } });
+  if (!existente) {
+    await prisma.agentToken.create({ data: { condominioId } });
+  }
   revalidatePath("/admin");
 }
 

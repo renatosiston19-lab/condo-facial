@@ -6,7 +6,7 @@ function generateIntelbrasUserId(): string {
   return String(Date.now()).slice(-8);
 }
 
-async function ensureMoradorIntelbrasUserId(moradorId: string): Promise<string> {
+export async function ensureMoradorIntelbrasUserId(moradorId: string): Promise<string> {
   const morador = await prisma.morador.findUniqueOrThrow({ where: { id: moradorId } });
   if (morador.intelbrasUserId) return morador.intelbrasUserId;
 
@@ -18,7 +18,7 @@ async function ensureMoradorIntelbrasUserId(moradorId: string): Promise<string> 
   return userId;
 }
 
-async function syncCadastroStatus(cadastroFacialId: string): Promise<void> {
+export async function syncCadastroStatus(cadastroFacialId: string): Promise<void> {
   const jobs = await prisma.provisioningJob.findMany({
     where: { cadastroFacialId },
   });

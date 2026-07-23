@@ -1,0 +1,5 @@
+{
+  "apiUrl": "https://facial.inframonitoramentos.com.br",
+  "agentToken": "COLE_AQUI_O_TOKEN_GERADO_NO_PAINEL_ADMIN",
+  "pollIntervalMs": 15000
+}

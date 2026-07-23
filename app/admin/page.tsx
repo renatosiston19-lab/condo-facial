@@ -6,6 +6,8 @@ import { Header } from "@/app/components/Header";
 import { DeleteUsuarioButton } from "@/app/components/DeleteUsuarioButton";
 import { CondominioSelector } from "@/app/components/CondominioSelector";
 import { LinkGeradoBanner } from "@/app/components/LinkGeradoBanner";
+import { DispositivoEditButton } from "@/app/components/DispositivoEditButton";
+import { AgentTokenSection } from "@/app/components/AgentTokenSection";
 import {
   createCondominio,
   createDispositivo,
@@ -34,7 +36,7 @@ export default async function AdminPage({
   const condominio = selectedId
     ? await prisma.condominio.findUnique({
         where: { id: selectedId },
-        include: { dispositivos: true, moradores: true, usuarios: true },
+        include: { dispositivos: true, moradores: true, usuarios: true, agentToken: true },
       })
     : null;
 
@@ -98,8 +100,11 @@ export default async function AdminPage({
               <h3 className="font-medium">Dispositivos</h3>
               <ul className="text-sm space-y-1">
                 {condominio.dispositivos.map((d) => (
-                  <li key={d.id}>
-                    {d.nome} — {d.ip} (porta {d.canalPorta}, modo {d.connectionMode})
+                  <li key={d.id} className="flex items-center gap-2">
+                    <span>
+                      {d.nome} — {d.ip} (porta {d.canalPorta}, modo {d.connectionMode})
+                    </span>
+                    <DispositivoEditButton dispositivo={d} />
                   </li>
                 ))}
               </ul>
@@ -119,6 +124,11 @@ export default async function AdminPage({
                 </button>
               </form>
             </div>
+
+            <AgentTokenSection
+              condominioId={condominio.id}
+              token={condominio.agentToken?.token ?? null}
+            />
 
             <MoradoresList
               condominioId={condominio.id}

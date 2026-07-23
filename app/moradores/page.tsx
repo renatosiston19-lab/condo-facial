@@ -19,7 +19,7 @@ export default async function MoradoresPage({
   });
 
   return (
-    <main className="flex-1 mx-auto max-w-2xl px-4 py-10 space-y-8 w-full">
+    <main className="flex-1 mx-auto max-w-6xl px-4 py-10 space-y-8 w-full">
       <Header
         title={`${condominio.nome} — Moradores`}
         right={

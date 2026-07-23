@@ -170,23 +170,23 @@ export function MoradoresList({
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="bg-gray-50 text-left text-gray-500">
-              <th className="py-2 px-3 font-medium">Nome</th>
-              <th className="py-2 px-3 font-medium">Bloco</th>
-              <th className="py-2 px-3 font-medium">Unidade</th>
-              <th className="py-2 px-3 font-medium">Telefone</th>
-              <th className="py-2 px-3 font-medium">E-mail</th>
-              <th className="py-2 px-3 font-medium">Ações</th>
+              <th className="py-3 px-4 font-medium">Nome</th>
+              <th className="py-3 px-4 font-medium">Bloco</th>
+              <th className="py-3 px-4 font-medium">Unidade</th>
+              <th className="py-3 px-4 font-medium">Telefone</th>
+              <th className="py-3 px-4 font-medium">E-mail</th>
+              <th className="py-3 px-4 font-medium">Ações</th>
             </tr>
           </thead>
           <tbody>
             {filtrados.map((m) => (
               <tr key={m.id} className="border-t">
-                <td className="py-2 px-3">{m.nome}</td>
-                <td className="py-2 px-3">{m.bloco ?? "-"}</td>
-                <td className="py-2 px-3">{m.unidade}</td>
-                <td className="py-2 px-3">{m.telefone ?? "-"}</td>
-                <td className="py-2 px-3">{m.email ?? "-"}</td>
-                <td className="py-2 px-3">
+                <td className="py-3 px-4">{m.nome}</td>
+                <td className="py-3 px-4">{m.bloco ?? "-"}</td>
+                <td className="py-3 px-4">{m.unidade}</td>
+                <td className="py-3 px-4">{m.telefone ?? "-"}</td>
+                <td className="py-3 px-4">{m.email ?? "-"}</td>
+                <td className="py-3 px-4">
                   <div className="flex flex-wrap items-center gap-2">
                     <form action={gerarLinkCadastro}>
                       <input type="hidden" name="moradorId" value={m.id} />
@@ -205,7 +205,7 @@ export function MoradoresList({
             ))}
             {filtrados.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-3 px-3 text-gray-500 text-center">
+                <td colSpan={6} className="py-4 px-4 text-gray-500 text-center">
                   Nenhum morador encontrado.
                 </td>
               </tr>

@@ -41,7 +41,7 @@ export default async function AdminPage({
     : null;
 
   return (
-    <main className="flex-1 mx-auto max-w-3xl px-4 py-10 space-y-10 w-full">
+    <main className="flex-1 mx-auto max-w-6xl px-4 py-10 space-y-10 w-full">
       <Header
         title="Admin — Cadastro Facial"
         right={

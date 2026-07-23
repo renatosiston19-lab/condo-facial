@@ -43,3 +43,11 @@ next-env.d.ts
 /app/generated/prisma
 
 certificates
+
+# config real do agente (contém token secreto) — só o .example.json vai pro repo
+agent/agent-config.json
+agent/agent.log
+
+# artefatos de build do agente (binários grandes, gerados via agent/build.js)
+agent/sea-prep.blob
+agent/agente-infra.exe

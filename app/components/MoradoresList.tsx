@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { createMorador, atualizarMorador, gerarLinkCadastro, removerMorador } from "@/app/admin/actions";
+import { EnviarWhatsAppButton } from "@/app/components/EnviarWhatsAppButton";
 
 export interface MoradorRow {
   id: string;
@@ -165,28 +166,53 @@ export function MoradoresList({
         />
       </div>
 
-      <ul className="text-sm space-y-1">
-        {filtrados.map((m) => (
-          <li key={m.id} className="flex items-center gap-2 flex-wrap">
-            <span>
-              {m.nome} — {m.bloco ? `bloco ${m.bloco}, ` : ""}unidade {m.unidade}
-            </span>
-            <form action={gerarLinkCadastro}>
-              <input type="hidden" name="moradorId" value={m.id} />
-              <button type="submit" className="text-brand-red underline text-xs">
-                Gerar link de cadastro facial
-              </button>
-            </form>
-            <button type="button" onClick={() => abrirEdicao(m)} className="text-brand-navy underline text-xs">
-              Editar
-            </button>
-            <DeleteMoradorButton morador={m} />
-          </li>
-        ))}
-        {filtrados.length === 0 && (
-          <li className="text-gray-500">Nenhum morador encontrado.</li>
-        )}
-      </ul>
+      <div className="overflow-x-auto border rounded-lg">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-gray-50 text-left text-gray-500">
+              <th className="py-2 px-3 font-medium">Nome</th>
+              <th className="py-2 px-3 font-medium">Bloco</th>
+              <th className="py-2 px-3 font-medium">Unidade</th>
+              <th className="py-2 px-3 font-medium">Telefone</th>
+              <th className="py-2 px-3 font-medium">E-mail</th>
+              <th className="py-2 px-3 font-medium">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtrados.map((m) => (
+              <tr key={m.id} className="border-t">
+                <td className="py-2 px-3">{m.nome}</td>
+                <td className="py-2 px-3">{m.bloco ?? "-"}</td>
+                <td className="py-2 px-3">{m.unidade}</td>
+                <td className="py-2 px-3">{m.telefone ?? "-"}</td>
+                <td className="py-2 px-3">{m.email ?? "-"}</td>
+                <td className="py-2 px-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <form action={gerarLinkCadastro}>
+                      <input type="hidden" name="moradorId" value={m.id} />
+                      <button type="submit" className="text-brand-red underline text-xs whitespace-nowrap">
+                        Gerar link
+                      </button>
+                    </form>
+                    <EnviarWhatsAppButton morador={m} />
+                    <button type="button" onClick={() => abrirEdicao(m)} className="text-brand-navy underline text-xs">
+                      Editar
+                    </button>
+                    <DeleteMoradorButton morador={m} />
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {filtrados.length === 0 && (
+              <tr>
+                <td colSpan={6} className="py-3 px-3 text-gray-500 text-center">
+                  Nenhum morador encontrado.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       <dialog ref={addDialogRef} className={DIALOG_CLASS}>
         <h4 className="font-medium mb-3">Adicionar morador</h4>

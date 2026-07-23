@@ -122,12 +122,10 @@ export async function atualizarMorador(formData: FormData): Promise<void> {
   revalidatePath("/moradores");
 }
 
-export async function gerarLinkCadastro(formData: FormData): Promise<void> {
-  const session = await requireSession(["MANUTENCAO", "SINDICO"]);
-
-  const moradorId = String(formData.get("moradorId") ?? "");
-  if (!moradorId) throw new Error("Selecione um morador.");
-
+async function criarCadastroFacial(
+  session: { role: "MANUTENCAO" | "SINDICO"; condominioId: string | null },
+  moradorId: string,
+): Promise<{ token: string; condominioId: string }> {
   const morador = await prisma.morador.findUniqueOrThrow({ where: { id: moradorId } });
   if (session.role === "SINDICO" && session.condominioId !== morador.condominioId) {
     throw new Error("Você não tem permissão para gerar links para este morador.");
@@ -140,11 +138,33 @@ export async function gerarLinkCadastro(formData: FormData): Promise<void> {
     },
   });
 
+  revalidatePath("/admin");
+  revalidatePath("/moradores");
+  return { token: cadastro.token, condominioId: morador.condominioId };
+}
+
+export async function gerarLinkCadastro(formData: FormData): Promise<void> {
+  const session = await requireSession(["MANUTENCAO", "SINDICO"]);
+
+  const moradorId = String(formData.get("moradorId") ?? "");
+  if (!moradorId) throw new Error("Selecione um morador.");
+
+  const { token, condominioId } = await criarCadastroFacial(session, moradorId);
+
   const redirectTo =
     session.role === "MANUTENCAO"
-      ? `/admin?linkGerado=${cadastro.token}&condominioId=${morador.condominioId}`
-      : `/moradores?linkGerado=${cadastro.token}`;
+      ? `/admin?linkGerado=${token}&condominioId=${condominioId}`
+      : `/moradores?linkGerado=${token}`;
   redirect(redirectTo);
+}
+
+/** Igual a gerarLinkCadastro, mas devolve o token em vez de redirecionar — usado pelo botão de WhatsApp. */
+export async function gerarLinkCadastroToken(moradorId: string): Promise<string> {
+  const session = await requireSession(["MANUTENCAO", "SINDICO"]);
+  if (!moradorId) throw new Error("Selecione um morador.");
+
+  const { token } = await criarCadastroFacial(session, moradorId);
+  return token;
 }
 
 /**
